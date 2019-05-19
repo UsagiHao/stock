@@ -270,23 +270,24 @@
       },
 
       getComments(){
-        /*let stockId = localStorage.getItem("stockId");
-        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/comments?stockId=" + stockId)
+        let stockId = localStorage.getItem("stockId");
+        this.$axios.get("http://127.0.0.1:5000/getStockComment?stockId=" + stockId + "&page=" + 1)
           .then(res => {
-            console.log(res);
-            let maxPage = res.maxPage;
-            this.comments = res.list;
+            this.comments = res.data.list;
+            let maxxPage = res.data.maxPage;
+            for (let i = 2; i <= maxxPage; i++){
+              this.$axios.get("http://127.0.0.1:5000/getStockComment?stockId=" + stockId + "&page=" + i)
+                .then(res => {
+                  this.comments.push(res.data.list);
+                })
+                .catch(err => {
+                  console.log(err)
+                });
+            }
           })
           .catch(err => {
             console.log(err)
-          });*/
-
-        this.$axios.get('/static/comments.json').then((res) => {
-          console.log(res.data) //打印看看数据吧
-          console.log(res.data.maxPage);
-          console.log(res.data.list);
-          this.comments = res.data.list;
-        })
+          });
       },
 
       getConcreteNews(index, row) {
@@ -305,7 +306,7 @@
 
         let stockId = localStorage.getItem("stockId");
         console.log(stockId);
-        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/stockkline?stockId=" + stockId)
+        this.$axios.get("http://127.0.0.1:5000/getStockKLine?stockId=" + stockId)
           .then(res => {
             console.log(res);
             /* for (let i = 0; i < res.data.length; i++) {
