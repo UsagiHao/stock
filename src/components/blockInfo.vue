@@ -1,5 +1,20 @@
 <template>
-  <div>
+  <div class = "center">
+    <el-scrollbar style="height: 600px;"> <!-- 滚动条 -->
+
+      <el-menu
+      :default-active="activeIndex"
+      class="el-menu-demo"
+      mode="horizontal"
+      @select="handleSelect"
+      background-color="#545c64"
+      text-color="#fff"
+      active-text-color="#ffd04b"
+    >
+      <el-menu-item index="1">板块</el-menu-item>
+      <el-menu-item index="2">龙头股</el-menu-item>
+
+    </el-menu>
     <div class="charts" :style="{height:'400px'}">
       <div id="myChart1" :style="{width:'600px', height:'300px'}" class="chart1"></div>
     </div>
@@ -110,6 +125,7 @@
         </template>
       </el-table-column>
     </el-table>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -120,7 +136,7 @@
         return{
           stocks:[],
           kLine:[],
-
+          activeIndex : '1',
           resData: [],
           echartsOption: {
             title: {
@@ -261,7 +277,7 @@
       methods: {
         getStocks() {
           let blockId = localStorage.getItem("blockId");
-          this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/stocks?blockId=" + blockId)
+          this.$axios("http://127.0.0.1:5000/getStockByBlock?blockId=" + blockId)
             .then(res => {
               console.log(res);
               this.stocks = res.data
@@ -272,9 +288,9 @@
         },
 
         getStockInfo(index, row) {
-         /* localStorage.setItem("stockId", row.id);
+         localStorage.setItem("stockId", row.id);
           console.log(localStorage.getItem("stockId"));
-          this.$router.push({path:'/stockInfo'})*/
+          this.$router.push({path:'/stockInfo'})
         },
 
         drawKLine(){
@@ -282,7 +298,7 @@
 
 
           let blockId = localStorage.getItem("blockId");
-          this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/blockkline?blockId=" + blockId)
+          this.$axios("http://127.0.0.1:5000/getBlockKLine?blockId=" + blockId)
             .then(res => {
               console.log(res);
              /* for (let i = 0; i < res.data.length; i++) {
@@ -325,12 +341,28 @@
             }
           }
 // 启用配置
-        }
+        },
+
+        handleSelect(key, keyPath) {
+          console.log(key, keyPath);
+          if (key === "1") {
+            localStorage.clear();
+            this.$router.push({path: '/block'})
+          }
+          if (key === "2"){
+            this.$router.push({path: '/leadingStock'})
+          }
+        },
       }
     }
 </script>
 
 <style scoped>
+  .center{
+    position: fixed;
+    top:0;
+    width: 100%;
+  }
   .chart1{
     position: fixed;
     right:25%;

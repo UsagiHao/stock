@@ -1,115 +1,96 @@
 <template>
-  <div>
-    <div class="charts" :style="{height:'400px'}">
+  <div class = "center">
+    <el-scrollbar style="height: 600px;"> <!-- 滚动条 -->
+
+      <el-menu
+        :default-active="activeIndex"
+        class="el-menu-demo"
+        mode="horizontal"
+        @select="handleSelect"
+        background-color="#545c64"
+        text-color="#fff"
+        active-text-color="#ffd04b"
+      >
+        <el-menu-item index="1">板块</el-menu-item>
+        <el-menu-item index="2">龙头股</el-menu-item>
+
+      </el-menu>
+      <div class="charts" :style="{height:'400px'}">
       <div id="myChart1" :style="{width:'600px', height:'300px'}" class="chart1"></div>
     </div>
+      <div>新闻</div>
     <el-table
-      :data="stocks"
+      :data="news"
       style="width: 100%">
       <el-table-column
-        label="代码"
-        width="100">
+        label="时间"
+        >
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.id }}</span>
+          <span style="margin-left: 10px">{{ scope.row.time }}</span>
         </template>
       </el-table-column>
 
       <el-table-column
-        label="名称"
-        width="100">
+        label="标题"
+        >
         <template slot-scope="scope">
-          <div style="margin-left: 10px"  @click="getStockInfo(scope.$index, scope.row)">{{ scope.row.name }}</div>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label=""现价
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.current }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="涨跌幅(%)"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.percent }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="涨跌"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.chg }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="涨速(%)"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.speed }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="换手(%)"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.changeHand }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="量比"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.amountRatio }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="振幅(%)"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.amplitude }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="成交额"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.volume }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="流通股"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.flow }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="流通市值"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.flowMarket }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        label="市盈率"
-        width="100">
-        <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.pe }}</span>
+          <div style="margin-left: 10px"  @click="getConcreteNews(scope.$index, scope.row)">{{ scope.row.title }}</div>
         </template>
       </el-table-column>
     </el-table>
+
+      <br>
+      <div>公告</div>
+      <el-table
+      :data="announcements"
+      style="width: 100%">
+      <el-table-column
+        label="时间"
+      >
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="标题"
+      >
+        <template slot-scope="scope">
+          <div style="margin-left: 10px"  @click="getConcreteAnnouncement(scope.$index, scope.row)">{{ scope.row.title }}</div>
+        </template>
+      </el-table-column>
+    </el-table>
+
+      <br>
+      <div>评论</div>
+      <el-table
+      :data="comments"
+      style="width: 100%">
+      <el-table-column
+        label="用户id"
+      >
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.user_id }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="用户名"
+      >
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.user.screen_name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="内容"
+      >
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.text }}</span>
+        </template>
+      </el-table-column>
+    </el-table>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -118,8 +99,11 @@
     name: "stockInfo",
     data(){
       return{
-        stocks:[],
+        news:[],
+        announcements:[],
+        comments:[],
         kLine:[],
+        activeIndex : '1',
 
         resData: [],
         echartsOption: {
@@ -251,7 +235,9 @@
     },
 
     created() {
-      this.getStocks();
+      this.getNews();
+      this.getAnnouncements();
+      this.getComments();
     },
 
     mounted() {
@@ -259,30 +245,67 @@
     },
 
     methods: {
-      getStocks() {
-        let blockId = localStorage.getItem("blockId");
-        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/stocks?blockId=" + blockId)
+      getNews(){
+        let stockId = localStorage.getItem("stockId");
+        this.$axios.get("http://127.0.0.1:5000/getStockNews?stockId=" + stockId)
           .then(res => {
             console.log(res);
-            this.stocks = res.data
+            this.news = res.data
           })
           .catch(err => {
             console.log(err)
           });
       },
 
-      getStockInfo(index, row) {
-        /* localStorage.setItem("stockId", row.id);
-         console.log(localStorage.getItem("stockId"));
-         this.$router.push({path:'/stockInfo'})*/
+      getAnnouncements(){
+        let stockId = localStorage.getItem("stockId");
+        this.$axios.get("http://127.0.0.1:5000/getPubNote?stockId=" + stockId)
+          .then(res => {
+            console.log(res);
+            this.announcements = res.data
+          })
+          .catch(err => {
+            console.log(err)
+          });
+      },
+
+      getComments(){
+        /*let stockId = localStorage.getItem("stockId");
+        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/comments?stockId=" + stockId)
+          .then(res => {
+            console.log(res);
+            let maxPage = res.maxPage;
+            this.comments = res.list;
+          })
+          .catch(err => {
+            console.log(err)
+          });*/
+
+        this.$axios.get('/static/comments.json').then((res) => {
+          console.log(res.data) //打印看看数据吧
+          console.log(res.data.maxPage);
+          console.log(res.data.list);
+          this.comments = res.data.list;
+        })
+      },
+
+      getConcreteNews(index, row) {
+        console.log(row.url);
+        window.open(row.url);
+      },
+
+      getConcreteAnnouncement(index, row) {
+        console.log(row.url);
+        window.open(row.url);
       },
 
       drawKLine(){
         let myChart = this.$echarts.init(document.getElementById("myChart1"));
 
 
-        let blockId = localStorage.getItem("blockId");
-        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/blockkline?blockId=" + blockId)
+        let stockId = localStorage.getItem("stockId");
+        console.log(stockId);
+        this.$axios.get("https://my-json-server.typicode.com/usagihao/demo/stockkline?stockId=" + stockId)
           .then(res => {
             console.log(res);
             /* for (let i = 0; i < res.data.length; i++) {
@@ -325,12 +348,28 @@
           }
         }
 // 启用配置
-      }
+      },
+
+      handleSelect(key, keyPath) {
+        console.log(key, keyPath);
+        if (key === "1") {
+          localStorage.clear();
+          this.$router.push({path: '/block'})
+        }
+        if (key === "2"){
+          this.$router.push({path: '/leadingStock'})
+        }
+      },
     }
   }
 </script>
 
 <style scoped>
+  .center{
+    position: fixed;
+    top:0;
+    width: 100%;
+  }
   .chart1{
     position: fixed;
     right:25%;
